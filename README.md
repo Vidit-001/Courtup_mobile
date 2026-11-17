@@ -1,27 +1,44 @@
-# CourtUp Android
+# CourtUp mobile
 
-Native Kotlin / Jetpack Compose client for the existing CourtUp Express server. No web source changes or separate backend.
+Native Kotlin / Jetpack Compose Android app and the existing CourtUp Express backend, included together so one clone is enough.
 
-## Run
-1. In PowerShell, open the existing Court-up_V0 web project's server directory.
-2. Run `npm install` if dependencies are missing, then `node index.js`.
-3. In Android Studio, sync Gradle, select the app configuration and an emulator, then Run (debug).
-4. Default API URL is http://10.0.2.2:5000/. Change ApiConfig.BASE_URL in app/src/main/java/com/example/courtup/CourtUpViewModel.kt for another server.
-5. Physical phone: use http://YOUR_COMPUTER_LAN_IP:5000/, connect both devices to the same network, and allow Node/port 5000 through Windows Firewall. Rebuild and run the debug app.
+## Run on another laptop
 
-HTTP is enabled only in the debug manifest. Release builds require an HTTPS backend.
-Use JDK 21 for Gradle (Android Studio's Gradle JDK setting); the system Java 25 installation is incompatible with this project's current tooling.
+Prerequisites: Git, Node.js with npm, Android Studio, Android SDK components requested by Gradle, and JDK 21 selected as Android Studio's Gradle JDK.
+
+1. Clone https://github.com/Vidit-001/Courtup_mobile.git.
+2. Open the cloned repository's root directory in Android Studio and let Gradle sync.
+3. Open a terminal in the cloned repository and start the backend:
+
+   ```powershell
+   cd server
+   npm ci
+   node index.js
+   ```
+
+   Keep this terminal open. It should print "Server running on port 5000". Run npm ci on the first setup or after the dependency lockfile changes.
+4. Start an Android emulator, select the app configuration and click Run (debug).
+5. The default API URL is http://10.0.2.2:5000/, which reaches the backend on the same laptop. The backend must run while using room features.
+
+The backend source and dependency lockfile are in server/. Dependencies are installed locally; node_modules is excluded from Git. The original web project is unchanged and is not needed to run the mobile app.
+
+## Physical phone
+
+Connect the phone and laptop to the same Wi-Fi, set ApiConfig.BASE_URL in app/src/main/java/com/example/courtup/CourtUpViewModel.kt to http://YOUR_LAPTOP_LAN_IP:5000/, and allow Node/port 5000 through the laptop firewall on private networks. Connect the phone with USB debugging enabled, select it in Android Studio and run the debug app.
+
+HTTP is enabled only in debug builds. Release builds require an HTTPS backend.
 
 ## Behavior
-The display name is an identity gate, not authentication. Name and navigation survive configuration changes and saved-state restoration. Rooms remain in memory on the existing server and reset when it restarts. Refresh fetches current room data; successful mutations also refresh. Failed requests show errors.
 
-All original endpoints are used: GET/POST /api/rooms and POST /api/rooms/{id}/request, /accept, /reject, /remove.
+The display name is an identity gate, not authentication. Name and navigation survive configuration changes and saved-state restoration. Rooms are stored in memory and reset when the backend restarts. Refresh fetches current room data; successful mutations also refresh. Failed requests show errors.
+
+The included backend preserves the original endpoints and behavior: GET/POST /api/rooms and POST /api/rooms/{id}/request, /accept, /reject, /remove.
 
 ## Verification
-- Debug APK assembly and JVM unit tests passed with JDK 21.
+
+- Android debug APK assembly and JVM unit tests passed with JDK 21.
 - State tests cover host, member, pending, full and joinable precedence.
 - Live Express calls exercised create, list, request, reject, accept and remove using the original payloads.
 - APK installed and launched on the API 36.1 emulator; welcome screen, disabled empty-name button and keyboard layout were visually inspected.
-- Full UI flows, rotation/state restoration and physical phone connectivity remain unverified: the emulator input channel disconnected and the emulator exited.
-- Android Studio Gradle sync timed out after updating its local Gradle JDK; command-line Gradle works with the JDK noted above.
-
+- Full UI flows and rotation/state restoration remain unverified after the emulator input channel disconnected.
+- Android Studio sync previously timed out locally; command-line Gradle builds succeeded with JDK 21.

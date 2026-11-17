@@ -1,3 +1,7 @@
+/server/node_modules/
+/server/.env
+/server/.env.*
+/server/npm-debug.log*
 *.iml
 .gradle
 /local.properties
